@@ -81,16 +81,20 @@
                 var ddSelect = [], ddJson = options.data;
 
                 //Get data from HTML select options
-                obj.find('option').each(function () {
-                    var $this = $(this), thisData = $this.data();
+                if (obj.find('optgroup').length > 0) {
                     ddSelect.push({
-                        text: $.trim($this.text()),
-                        value: $this.val(),
-                        selected: $this.is(':selected'),
-                        description: thisData.description,
-                        imageSrc: thisData.imagesrc //keep it lowercase for HTML5 data-attributes
+                        options: addOptions(opt);
                     });
-                });
+                }
+                else {
+                    obj.find('option').each(function () {
+                        var $this = $(this), thisData = $this.data();
+                        ddSelect.push({
+                            options: addOptions($this),
+                            label:   $this.attr('label')
+                        });
+                    });
+                }
 
                 //Update Plugin data merging both HTML select data and JSON data for the dropdown
                 if (options.keepJSONItemsOnTop)
@@ -124,16 +128,25 @@
                     ddOptions.css({ height: options.height, overflow: 'auto' });
 
                 //Add ddOptions to the container. Replace with template engine later.
-                $.each(options.data, function (index, item) {
-                    if (item.selected) options.defaultSelectedIndex = index;
-                    ddOptions.append('<li>' +
-                        '<a class="dd-option">' +
-                            (item.value ? ' <input class="dd-option-value" type="hidden" value="' + item.value + '" />' : '') +
-                            (item.imageSrc ? ' <img class="dd-option-image' + (options.imagePosition == "right" ? ' dd-image-right' : '') + '" src="' + item.imageSrc + '" />' : '') +
-                            (item.text ? ' <label class="dd-option-text">' + item.text + '</label>' : '') +
-                            (item.description ? ' <small class="dd-option-description dd-desc">' + item.description + '</small>' : '') +
-                        '</a>' +
-                    '</li>');
+                $.each(options.data, function (optgroupIndex, optgroupItem) {
+                    if (optgroupItem['label'] != undefined) {
+                        ddOptions.append(
+                            '<li class="dd-optgroup">' + optgroupItem.label + '</li>'
+                        );
+                    }
+
+                    $each(optgroupItem.options, function (index, item) {
+                        if (item.selected) options.defaultSelectedIndex = index;
+
+                        ddOptions.append('<li>' +
+                            '<a class="dd-option">' +
+                                (item.value ? ' <input class="dd-option-value" type="hidden" value="' + item.value + '" />' : '') +
+                                (item.imageSrc ? ' <img class="dd-option-image' + (options.imagePosition == "right" ? ' dd-image-right' : '') + '" src="' + item.imageSrc + '" />' : '') +
+                                (item.text ? ' <label class="dd-option-text">' + item.text + '</label>' : '') +
+                                (item.description ? ' <small class="dd-option-description dd-desc">' + item.description + '</small>' : '') +
+                            '</a>' +
+                        '</li>');
+                     });
                 });
 
                 //Save plugin data.
@@ -354,6 +367,18 @@
                 $this.find('.dd-option-text').css('lineHeight', lOHeight);
             }
         });
+    }
+
+    function addOptions(obj) {
+        obj.find('option').each(function () {
+            ddSelect.push({
+                text: $.trim($this.text()),
+                value: $this.val(),
+                selected: $this.is(':selected'),
+                description: thisData.description,
+                imageSrc: thisData.imagesrc //keep it lowercase for HTML5 data-attributes
+            });
+        }
     }
 
 })(jQuery);
