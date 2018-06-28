@@ -97,6 +97,19 @@
                 var ddSelect = [], ddJson = options.data;
 
                 //Get data from HTML select options
+                if (obj.find('optgroup').length > 0) {
+                    options: addOptions(opt); 
+                    });
+                     }
+               else {
+                    obj.find('option').each(function () {
+                        var $this = $(this), thisData = $this.data();
+                        ddSelect.push({
+                            options: addOptions($this),
+                            label:   $this.attr('label')
+                        });
+                    });
+                }
                 obj.find('option').each(function () {
                     var $this = $(this), thisData = $this.data();
                     ddSelect.push({
@@ -403,5 +416,16 @@
             }
         });
     }
++    function addOptions(obj) {
++        obj.find('option').each(function () {
++            ddSelect.push({
++                text: $.trim($this.text()),
++                value: $this.val(),
++                selected: $this.is(':selected'),
++                description: thisData.description,
++                imageSrc: thisData.imagesrc //keep it lowercase for HTML5 data-attributes
++            });
++        }
++    }
 
 })(jQuery);
